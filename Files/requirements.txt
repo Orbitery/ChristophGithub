@@ -1,0 +1,9 @@
+scipy==1.7.3
+matplotlib==3.5.0
+numpy==1.21.4
+py-ecg-detectors==1.1.0
+pandas==1.1.0
+mysql-connector-python==8.0.26
+sklearn==0.0
+tensorflow==2.7.0
+keras==2.7.0
