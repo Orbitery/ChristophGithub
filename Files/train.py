@@ -12,9 +12,31 @@ from ecgdetectors import Detectors
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import datasets, layers, models
 
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+
 from wettbewerb import load_references
 
 ### if __name__ == '__main__':  # bei multiprocessing auf Windows notwendig
+
+def BP_Filter(ecg_lead): 
+    fs = 300  # Sampling frequency
+
+    fc = 30  # Cut-off frequency of the filter
+    w = fc / (fs / 2) # Normalize the frequency
+
+    b, a = signal.butter(5, w, 'low')
+    output = signal.filtfilt(b, a, ecg_lead)
+    d, c = signal.butter(5, w, 'high')
+    ecg_lead = signal.filtfilt(d, c, output)
+    return ecg_lead
+
+def Scaler(ecg_lead):
+    number = np.random.uniform(low=0.0, high=1.0, size=None)
+    ecg_lead = ecg_lead * number
+    return ecg_lead
 
 ecg_leads,ecg_labels,fs,ecg_names = load_references("../training") # Importiere EKG-Dateien, zugehörige Diagnose, Sampling-Frequenz (Hz) und Name                                                # Sampling-Frequenz 300 Hz
 
@@ -24,8 +46,14 @@ train_labels = []
 train_samples = []
 r_peaks_list = []
 
+
+
+
+
 line_count = 0
 for idx, ecg_lead in enumerate(ecg_leads):
+    ecg_lead = BP_Filter(ecg_lead)
+    ecg_lead = Scaler(ecg_lead)
     ecg_lead = ecg_lead.astype('float')  # Wandel der Daten von Int in Float32 Format für CNN später
     ecg_lead = (ecg_lead - ecg_lead.mean()) 
     ecg_lead = ecg_lead / (ecg_lead.std() + 1e-08)  
